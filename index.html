@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Danny's NFL Team Draft Challenge 2025</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+    h1 { text-align: center; }
+    .image-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+    .week { border: 1px solid #ccc; background: #fff; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+    .week img { max-width: 300px; height: auto; display: block; margin: 0 auto; }
+    .caption { text-align: center; margin-top: 10px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Danny's NFL Team Draft Challenge 2025</h1>
+  <div class="image-container" id="gallery"></div>
+
+  <script>
+    // List of image filenames (manually or script-generated)
+    const imageFilenames = [
+      "NFL Challenge 2025 Week 01.jpg",
+      "NFL Challenge 2025 Week 02.jpg",
+      "NFL Challenge 2025 Week 03.jpg",
+      "NFL Challenge 2025 Week 04.jpg",
+      "NFL Challenge 2025 Week 05.jpg",
+      "NFL Challenge 2025 Week 06.jpg",
+      "NFL Challenge 2025 Week 07.jpg",
+      "NFL Challenge 2025 Week 08.jpg",
+      "NFL Challenge 2025 Week 09.jpg",
+      "NFL Challenge 2025 Week 10.jpg",
+      "NFL Challenge 2025 Week 11.jpg",
+      "NFL Challenge 2025 Week 12.jpg",
+      "NFL Challenge 2025 Week 13.jpg",
+      "NFL Challenge 2025 Week 14.jpg",
+      "NFL Challenge 2025 Week 15.jpg",
+      "NFL Challenge 2025 Week 16.jpg",
+      "NFL Challenge 2025 Week 17.jpg",
+      "NFL Challenge 2025 Week 18.jpg"
+    ];
+
+    // Sort descending by week number
+    imageFilenames.sort((a, b) => {
+      const getWeek = str => parseInt(str.match(/Week (\d+)/)[1]);
+      return getWeek(b) - getWeek(a);
+    });
+
+    const gallery = document.getElementById("gallery");
+
+    imageFilenames.forEach(filename => {
+      const img = document.createElement("img");
+      img.src = `Images/${filename}`; // Assumes Images folder is in same directory
+      img.alt = filename;
+
+      const container = document.createElement("div");
+      container.className = "week";
+
+      const caption = document.createElement("div");
+      caption.className = "caption";
+      caption.textContent = filename.replace(".jpg", "");
+
+      container.appendChild(img);
+      container.appendChild(caption);
+      gallery.appendChild(container);
+    });
+  </script>
+</body>
+</html>
