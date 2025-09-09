@@ -72,18 +72,18 @@
 	imageFilenames.forEach(filename => {
 	  const img = new Image();
 	  img.src = `Images/${filename}`;
-	  img.alt = ``; //filename;
+	  img.alt = filename;
 
 	  img.onload = () => {
 		const container = document.createElement("div");
 		container.className = "week";
 
-		const caption = document.createElement("div");
-		caption.className = "caption";
-		caption.textContent = filename.replace(".jpg", "");
+		//const caption = document.createElement("div");
+		//caption.className = "caption";
+		//caption.textContent = filename.replace(".jpg", "");
 
 		container.appendChild(img);
-		container.appendChild(caption);
+		//container.appendChild(caption);
 		gallery.appendChild(container);
 	  };
 
