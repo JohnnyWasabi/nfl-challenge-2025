@@ -3,12 +3,37 @@
 <head>
   <title>Danny's NFL Team Draft Challenge 2025</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
-    h1 { text-align: center; }
-    .image-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-    .week { border: 1px solid #ccc; background: #fff; padding: 10px; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
-    .week img { max-width: 300px; height: auto; display: block; margin: 0 auto; }
-    .caption { text-align: center; margin-top: 10px; font-weight: bold; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+    }
+    .image-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+    .week {
+      background: #fff;
+      padding: 10px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+      width: 100%;
+      text-align: center;
+    }
+    .week img {
+      max-width: 100%;
+      height: auto;
+    }
+    .caption {
+      margin-top: 10px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -16,7 +41,6 @@
   <div class="image-container" id="gallery"></div>
 
   <script>
-    // List of image filenames (manually or script-generated)
     const imageFilenames = [
       "NFL Challenge 2025 Week 01.jpg",
       "NFL Challenge 2025 Week 02.jpg",
@@ -38,7 +62,6 @@
       "NFL Challenge 2025 Week 18.jpg"
     ];
 
-    // Sort descending by week number
     imageFilenames.sort((a, b) => {
       const getWeek = str => parseInt(str.match(/Week (\d+)/)[1]);
       return getWeek(b) - getWeek(a);
@@ -48,7 +71,7 @@
 
     imageFilenames.forEach(filename => {
       const img = document.createElement("img");
-      img.src = `Images/${filename}`; // Assumes Images folder is in same directory
+      img.src = `Images/${filename}`;
       img.alt = filename;
 
       const container = document.createElement("div");
