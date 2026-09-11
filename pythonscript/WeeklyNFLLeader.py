@@ -26,6 +26,7 @@ TEAM_MASCOTS = {
     "NYJ": "Jets",
     "PHI": "Eagles",
     "WAS": "Commanders",
+    "WSH": "Commanders",
     "CHI": "Bears",
     "GB": "Packers",
     "DET": "Lions",
@@ -245,16 +246,18 @@ def open_csv_pair(stat_name, write_header=True):
     return (team_file, team_writer), (player_file, player_writer)
 
 
-(rush_team_f, rush_team_w), (rush_player_f, rush_player_w) = open_csv_pair("Rush")
-(rec_team_f,  rec_team_w),  (rec_player_f,  rec_player_w)  = open_csv_pair("Receive")
-(pass_team_f, pass_team_w), (pass_player_f, pass_player_w) = open_csv_pair("Pass")
-(sack_team_f, sack_team_w), (sack_player_f, sack_player_w) = open_csv_pair("Sack")
-(int_team_f,  int_team_w),  (int_player_f,  int_player_w)  = open_csv_pair("INT")
-(tkl_team_f,  tkl_team_w),  (tkl_player_f,  tkl_player_w)  = open_csv_pair("Tackle")
+#(rush_team_f, rush_team_w), (rush_player_f, rush_player_w) = open_csv_pair("Rush")
+#(rec_team_f,  rec_team_w),  (rec_player_f,  rec_player_w)  = open_csv_pair("Receive")
+#(pass_team_f, pass_team_w), (pass_player_f, pass_player_w) = open_csv_pair("Pass")
+#(sack_team_f, sack_team_w), (sack_player_f, sack_player_w) = open_csv_pair("Sack")
+#(int_team_f,  int_team_w),  (int_player_f,  int_player_w)  = open_csv_pair("INT")
+#(tkl_team_f,  tkl_team_w),  (tkl_player_f,  tkl_player_w)  = open_csv_pair("Tackle")
 
 (concat_team_f, concat_team_w), (concat_player_f, concat_player_w) = open_csv_pair("Concat", write_header=False)
 
 numWeeks = 0
+week_scores = defaultdict(lambda: defaultdict(lambda: None))
+
 # ------------------------------------------------------------
 # MAIN LOOP
 # ------------------------------------------------------------
@@ -275,7 +278,7 @@ for week in WEEKS:
         "interceptions": {"value": 0.0, "player": None},
         "tackles": {"value": 0.0, "player": None},
     })
-
+    
     for event in events:
         event_ref = event.get("$ref")
         if not event_ref:
@@ -290,6 +293,7 @@ for week in WEEKS:
         box_url = BOXSCORE_URL.format(game_id=game_id)
         box_data = get_json(box_url)
         boxscore = get_gamepackage_boxscore(box_data)
+        gp = box_data.get("gamepackageJSON", {})
 
         if not boxscore:
             print(f"  Skipping game {game_id}: no boxscore")
@@ -308,6 +312,20 @@ for week in WEEKS:
                 if stats[key]["value"] > week_team_defense[team][key]["value"]:
                     week_team_defense[team][key] = stats[key]
 
+        # Extract the game scores
+        competitors = gp.get("header", {}).get("competitions", [{}])[0].get("competitors", [])
+        for comp in competitors:
+            team_abbr = comp["team"]["abbreviation"]
+            score = comp.get("score")
+            if score is None:
+                score = ""
+            week_scores[team_abbr][week] = score
+
+    # After processing all games for the week, handle bye games (missing from score data):
+    #for abbr in TEAM_MASCOTS.keys():
+    #    if week_scores[abbr].get(week) is None:
+    #        week_scores[abbr][week] = 0
+
     if not week_team_offense and not week_team_defense:
         print(f"  Week {week}: no stats found. Stopping")
         break;
@@ -316,21 +334,21 @@ for week in WEEKS:
     leaders = find_week_leaders_team_player(week_team_offense, week_team_defense)
 
     # Team CSVs
-    rush_team_w.writerow([week, leaders["rush"]["value"]] + leaders["rush"]["teams"])
-    rec_team_w.writerow([week, leaders["rec"]["value"]] + leaders["rec"]["teams"])
-    pass_team_w.writerow([week, leaders["pass"]["value"]] + leaders["pass"]["teams"])
-    sack_team_w.writerow([week, leaders["sacks"]["value"]] + leaders["sacks"]["teams"])
-    int_team_w.writerow([week, leaders["interceptions"]["value"]] + leaders["interceptions"]["teams"])
-    tkl_team_w.writerow([week, leaders["tackles"]["value"]] + leaders["tackles"]["teams"])
+    #rush_team_w.writerow([week, leaders["rush"]["value"]] + leaders["rush"]["teams"])
+    #rec_team_w.writerow([week, leaders["rec"]["value"]] + leaders["rec"]["teams"])
+    #pass_team_w.writerow([week, leaders["pass"]["value"]] + leaders["pass"]["teams"])
+    #sack_team_w.writerow([week, leaders["sacks"]["value"]] + leaders["sacks"]["teams"])
+    #int_team_w.writerow([week, leaders["interceptions"]["value"]] + leaders["interceptions"]["teams"])
+    #tkl_team_w.writerow([week, leaders["tackles"]["value"]] + leaders["tackles"]["teams"])
 
 
     # Player CSVs
-    rush_player_w.writerow([week, leaders["rush"]["value"]] + leaders["rush"]["players"])
-    rec_player_w.writerow([week, leaders["rec"]["value"]] + leaders["rec"]["players"])
-    pass_player_w.writerow([week, leaders["pass"]["value"]] + leaders["pass"]["players"])
-    sack_player_w.writerow([week, leaders["sacks"]["value"]] + leaders["sacks"]["players"])
-    int_player_w.writerow([week, leaders["interceptions"]["value"]] + leaders["interceptions"]["players"])
-    tkl_player_w.writerow([week, leaders["tackles"]["value"]] + leaders["tackles"]["players"])
+    #rush_player_w.writerow([week, leaders["rush"]["value"]] + leaders["rush"]["players"])
+    #rec_player_w.writerow([week, leaders["rec"]["value"]] + leaders["rec"]["players"])
+    #pass_player_w.writerow([week, leaders["pass"]["value"]] + leaders["pass"]["players"])
+    #sack_player_w.writerow([week, leaders["sacks"]["value"]] + leaders["sacks"]["players"])
+    #int_player_w.writerow([week, leaders["interceptions"]["value"]] + leaders["interceptions"]["players"])
+    #tkl_player_w.writerow([week, leaders["tackles"]["value"]] + leaders["tackles"]["players"])
 
 print("Done. CSV files written. Writing concatenated CSVS...")
 
@@ -358,13 +376,29 @@ write_concat_csv(concat_team_w, "Team Stat Leaders", "teams")
 #
 write_concat_csv(concat_player_w, "Athlete Stat Leaders", "players")
 
+
+#
+# Write Team Scores CSV
+#
+with open("TeamScoresByWeek.csv", "w", newline="") as f:
+    w = csv.writer(f)
+    header = ["Team"] + [f"Week{wk}" for wk in WEEKS]
+    w.writerow(header)
+
+    for abbr in sorted(week_scores.keys()):
+        row = [TEAM_MASCOTS.get(abbr, abbr)]
+        for wk in WEEKS:
+            row.append(week_scores[abbr].get(wk, ""))
+        w.writerow(row)
+
+
 for f in [
-    rush_team_f, rush_player_f,
-    rec_team_f,  rec_player_f,
-    pass_team_f, pass_player_f,
-    sack_team_f, sack_player_f,
-    int_team_f,  int_player_f,
-    tkl_team_f,  tkl_player_f,
+    #rush_team_f, rush_player_f,
+    #rec_team_f,  rec_player_f,
+    #pass_team_f, pass_player_f,
+    #sack_team_f, sack_player_f,
+    #int_team_f,  int_player_f,
+    #tkl_team_f,  tkl_player_f,
     concat_team_f, concat_player_f,
 ]:
     f.close()
