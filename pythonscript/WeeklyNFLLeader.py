@@ -257,6 +257,7 @@ def open_csv_pair(stat_name, write_header=True):
 
 numWeeks = 0
 week_scores = defaultdict(lambda: defaultdict(lambda: None))
+weekly_leaders = {}
 
 # ------------------------------------------------------------
 # MAIN LOOP
@@ -332,6 +333,7 @@ for week in WEEKS:
     numWeeks = numWeeks + 1
     
     leaders = find_week_leaders_team_player(week_team_offense, week_team_defense)
+    weekly_leaders[week] = leaders
 
     # Team CSVs
     #rush_team_w.writerow([week, leaders["rush"]["value"]] + leaders["rush"]["teams"])
@@ -360,7 +362,7 @@ def write_concat_csv(csv_writer, title, category):
         csv_writer.writerow(["",STATNAMES[i]])
         for week in WEEKS:
             if (week <= numWeeks):
-                csv_writer.writerow([week, leaders[STATCODES[i]]["value"]] + leaders[STATCODES[i]][category])
+                csv_writer.writerow([week, weekly_leaders[week][STATCODES[i]]["value"]] + weekly_leaders[week][STATCODES[i]][category])
             else:
                 csv_writer.writerow([week])
            
@@ -385,7 +387,8 @@ with open("TeamScoresByWeek.csv", "w", newline="") as f:
     header = ["Team"] + [f"Week{wk}" for wk in WEEKS]
     w.writerow(header)
 
-    for abbr in sorted(week_scores.keys()):
+    #for abbr in sorted(week_scores.keys()):
+    for abbr in sorted(week_scores.keys(), key=lambda a: TEAM_MASCOTS[a]):
         row = [TEAM_MASCOTS.get(abbr, abbr)]
         for wk in WEEKS:
             row.append(week_scores[abbr].get(wk, ""))
