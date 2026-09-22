@@ -85,9 +85,8 @@ def get_value_by_label(labels, stats, wanted_labels):
     """
     for i, lab in enumerate(labels):
         lab_l = str(lab).lower()
-        if lab_l in wanted_labels and i < len(stats):
+        if any(w in lab_l for w in wanted_labels) and i < len(stats):
             raw = stats[i]
-            # handle "0-0" etc. by ignoring non-numeric
             try:
                 return float(raw)
             except Exception:
@@ -96,7 +95,6 @@ def get_value_by_label(labels, stats, wanted_labels):
                 except Exception:
                     return 0.0
     return 0.0
-
 
 def extract_team_player_stats(boxscore):
     """
@@ -137,6 +135,9 @@ def extract_team_player_stats(boxscore):
                 athlete_info = a.get("athlete", {})
                 pname = athlete_info.get("displayName")
                 stats = a.get("stats", [])
+                #if "Devin Lloyd" in pname:
+                #    print(f"  Devin Lloyd stats: {cname}, {labels} ")
+                #    print(stats)
 
                 # Passing
                 if "passing" in cname:
@@ -168,6 +169,7 @@ def extract_team_player_stats(boxscore):
                 # Defensive
                 if "defensive" in cname:
                     sacks = get_value_by_label(labels, stats, ["sacks"])
+                    #print(f"  SACKS: {team_abbr}: {pname} = {sacks}")
                     if sacks > team_defense[team_abbr]["sacks"]["value"]:
                         team_defense[team_abbr]["sacks"] = {
                             "value": sacks,
@@ -186,6 +188,16 @@ def extract_team_player_stats(boxscore):
                     if tkl > team_defense[team_abbr]["tackles"]["value"]:
                         team_defense[team_abbr]["tackles"] = {
                             "value": tkl,
+                            "player": pname,
+                        }
+
+                # Interceptions category (separate from defensive)
+                if "interceptions" in cname:
+                    ints = get_value_by_label(labels, stats, ["int", "ints"])
+                    #print(f"  INTS: {team_abbr}: {pname} = {ints}")
+                    if ints > team_defense[team_abbr]["interceptions"]["value"]:
+                        team_defense[team_abbr]["interceptions"] = {
+                            "value": ints,
                             "player": pname,
                         }
 
